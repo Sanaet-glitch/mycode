@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
+import { AttendanceRecord } from "@/types/attendance";
 
 interface Student {
   id: string;
@@ -105,12 +106,12 @@ const LecturerDashboard = () => {
   };
 
   const handleExportAttendance = () => {
-    const attendanceData = MOCK_ATTENDANCE_DATA.map(record => ({
+    const attendanceData: AttendanceRecord[] = MOCK_ATTENDANCE_DATA.map(record => ({
       id: `monthly-${record.month}`,
       classId: "all",
       className: "All Classes",
       date: `${record.month} 2024`,
-      status: "present",
+      status: "present" as const,
       location: "Various"
     }));
     
