@@ -106,11 +106,12 @@ const LecturerDashboard = () => {
 
   const handleExportAttendance = () => {
     const attendanceData = MOCK_ATTENDANCE_DATA.map(record => ({
-      month: record.month,
-      present: record.present,
-      absent: record.absent,
-      total: record.present + record.absent,
-      attendanceRate: `${((record.present / (record.present + record.absent)) * 100).toFixed(1)}%`
+      id: `monthly-${record.month}`,
+      classId: "all",
+      className: "All Classes",
+      date: `${record.month} 2024`,
+      status: "present",
+      location: "Various"
     }));
     
     exportToCSV(attendanceData);
