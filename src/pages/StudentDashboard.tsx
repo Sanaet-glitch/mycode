@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { MapPin, Download, Bell, FileText } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { calculateDistance, getLecturerLocation } from "@/utils/distance";
 import { Class, AttendanceRecord } from "@/types/attendance";
@@ -12,6 +12,8 @@ import { Link } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
+import { exportToCSV } from "@/utils/export";
 
 const MOCK_CLASSES: Class[] = [
   { id: "1", name: "Mathematics 101", schedule: "Mon, Wed 9:00 AM" },
@@ -23,6 +25,12 @@ const MOCK_ATTENDANCE: AttendanceRecord[] = [
   { id: "1", classId: "1", className: "Mathematics 101", date: "2024-02-20", status: "present", location: "Near Lecturer" },
   { id: "2", classId: "2", className: "Physics 201", date: "2024-02-21", status: "present", location: "Near Lecturer" },
   { id: "3", classId: "1", className: "Mathematics 101", date: "2024-02-22", status: "absent", location: "N/A" },
+];
+
+const MOCK_MONTHLY_DATA = [
+  { month: "Jan", present: 15, absent: 2 },
+  { month: "Feb", present: 18, absent: 1 },
+  { month: "Mar", present: 12, absent: 3 },
 ];
 
 const StudentDashboard = () => {
@@ -38,6 +46,21 @@ const StudentDashboard = () => {
       date: new Date(),
     },
   });
+
+  useEffect(() => {
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  const scheduleNotification = (className: string, schedule: string) => {
+    if (Notification.permission === "granted") {
+      const notification = new Notification("Class Reminder", {
+        body: `Your ${className} class starts in 15 minutes (${schedule})`,
+        icon: "/favicon.ico"
+      });
+    }
+  };
 
   const calculateAttendanceStats = () => {
     const totalClasses = MOCK_ATTENDANCE.length;
@@ -109,17 +132,29 @@ const StudentDashboard = () => {
   };
 
   const handleExport = () => {
+    exportToCSV(MOCK_ATTENDANCE);
     toast({
-      title: "Export Started",
-      description: "Your attendance records are being exported.",
+      title: "Export Complete",
+      description: "Your attendance records have been downloaded.",
     });
   };
 
   const handleNotificationToggle = () => {
-    toast({
-      title: "Notifications Enabled",
-      description: "You will receive reminders before your classes.",
-    });
+    if (Notification.permission === "granted") {
+      MOCK_CLASSES.forEach(cls => {
+        scheduleNotification(cls.name, cls.schedule);
+      });
+      toast({
+        title: "Notifications Enabled",
+        description: "You will receive reminders 15 minutes before your classes.",
+      });
+    } else {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          handleNotificationToggle();
+        }
+      });
+    }
   };
 
   const stats = calculateAttendanceStats();
@@ -165,6 +200,9 @@ const StudentDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Analytics Chart */}
+            <AttendanceChart data={MOCK_MONTHLY_DATA} />
 
             {/* Calendar View */}
             <Card>
