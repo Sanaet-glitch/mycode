@@ -5,38 +5,78 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useToast } from "@/components/ui/use-toast";
-import { GraduationCap } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { GraduationCap, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const authSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Password must contain at least one number"),
+  fullName: z.string().min(2, "Full name must be at least 2 characters").optional(),
+  role: z.enum(["student", "lecturer", "admin"]).optional(),
+});
+
+type AuthFormValues = z.infer<typeof authSchema>;
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState("student");
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const form = useForm<AuthFormValues>({
+    resolver: zodResolver(authSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      fullName: "",
+      role: "student",
+    },
+  });
+
+  const calculatePasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 25;
+    if (password.match(/[A-Z]/)) strength += 25;
+    if (password.match(/[a-z]/)) strength += 25;
+    if (password.match(/[0-9]/)) strength += 25;
+    setPasswordStrength(strength);
+  };
+
+  const handleAuth = async (values: AuthFormValues) => {
     setLoading(true);
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: values.email,
+          password: values.password,
         });
         if (error) throw error;
         navigate("/");
       } else {
         const { error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: values.email,
+          password: values.password,
           options: {
             data: {
-              full_name: fullName,
-              role: role,
+              full_name: values.fullName,
+              role: values.role,
             },
           },
         });
@@ -76,85 +116,136 @@ const Auth = () => {
 
         <Card className="border-none shadow-lg">
           <CardContent className="pt-6">
-            <form onSubmit={handleAuth} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <label htmlFor="fullName" className="text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <Input
-                    id="fullName"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                    className="border-gray-200"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleAuth)} className="space-y-4">
+                {!isLogin && (
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter your full name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Institution Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your.email@institution.edu"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="border-gray-200"
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Institution Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="your.email@institution.edu"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={isLogin ? "Enter your password" : "Create a password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="border-gray-200"
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={isLogin ? "Enter your password" : "Create a password"}
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            calculatePasswordStrength(e.target.value);
+                          }}
+                        />
+                      </FormControl>
+                      {!isLogin && (
+                        <div className="mt-2">
+                          <div className="h-2 w-full bg-gray-200 rounded-full">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${
+                                passwordStrength <= 25
+                                  ? "bg-red-500"
+                                  : passwordStrength <= 50
+                                  ? "bg-orange-500"
+                                  : passwordStrength <= 75
+                                  ? "bg-yellow-500"
+                                  : "bg-green-500"
+                              }`}
+                              style={{ width: `${passwordStrength}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Password strength: {passwordStrength}%
+                          </p>
+                        </div>
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              {!isLogin && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Role</label>
-                  <RadioGroup
-                    value={role}
-                    onValueChange={setRole}
-                    className="flex space-x-4"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="student" id="student" />
-                      <label htmlFor="student">Student</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="lecturer" id="lecturer" />
-                      <label htmlFor="lecturer">Lecturer</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="admin" id="admin" />
-                      <label htmlFor="admin">Admin</label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              )}
+                {!isLogin && (
+                  <FormField
+                    control={form.control}
+                    name="role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Role</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex space-x-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="student" id="student" />
+                              <label htmlFor="student">Student</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="lecturer" id="lecturer" />
+                              <label htmlFor="lecturer">Lecturer</label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="admin" id="admin" />
+                              <label htmlFor="admin">Admin</label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
-              <Button
-                type="submit"
-                className="w-full bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white"
-                disabled={loading}
-              >
-                {loading ? "Loading..." : isLogin ? "Sign in" : "Sign Up"}
-              </Button>
-            </form>
+                <Button
+                  type="submit"
+                  className="w-full bg-[#1A1F2C] hover:bg-[#2A2F3C] text-white"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Please wait...
+                    </>
+                  ) : isLogin ? (
+                    "Sign in"
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
+              </form>
+            </Form>
 
             <div className="mt-4 text-center">
               <button
