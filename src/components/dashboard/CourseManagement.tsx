@@ -62,12 +62,11 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
       const { data, error } = await supabase
         .from('enrollments')
         .select(`
+          id,
           student_id,
           enrollment_date,
-          student:student_id (
-            profiles!inner (
-              full_name
-            )
+          profiles!student_id(
+            full_name
           )
         `)
         .eq('course_id', selectedCourse?.id)
@@ -82,7 +81,7 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
 
       return data.map(enrollment => ({
         id: enrollment.student_id,
-        full_name: enrollment.student.profiles.full_name,
+        full_name: enrollment.profiles?.full_name || 'Unknown',
         enrollment_date: new Date(enrollment.enrollment_date).toLocaleDateString(),
       }));
     },
