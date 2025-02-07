@@ -46,6 +46,27 @@ const LecturerDashboard = () => {
     enabled: !!session?.user?.id,
   });
 
+  // Fetch attendance data for the chart
+  const { data: attendanceData } = useQuery({
+    queryKey: ['attendance-overview', session?.user?.id],
+    queryFn: async () => {
+      // Get the last 6 months
+      const months = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        return d.toLocaleString('default', { month: 'short' });
+      }).reverse();
+
+      // For now, return sample data structured correctly
+      return months.map(month => ({
+        month,
+        present: Math.floor(Math.random() * 30) + 20, // Random number between 20-50
+        absent: Math.floor(Math.random() * 10) + 1,   // Random number between 1-10
+      }));
+    },
+    enabled: !!session?.user?.id,
+  });
+
   // Create course mutation
   const createCourseMutation = useMutation({
     mutationFn: async (courseData: { title: string; description: string }) => {
@@ -141,7 +162,9 @@ const LecturerDashboard = () => {
   };
 
   const handleExportAttendance = () => {
-    const attendanceData: AttendanceRecord[] = MOCK_ATTENDANCE_DATA.map(record => ({
+    if (!attendanceData) return;
+    
+    const exportData: AttendanceRecord[] = attendanceData.map(record => ({
       id: `monthly-${record.month}`,
       classId: "all",
       className: "All Classes",
@@ -150,7 +173,7 @@ const LecturerDashboard = () => {
       location: "Various"
     }));
     
-    exportToCSV(attendanceData);
+    exportToCSV(exportData);
     toast({
       title: "Export Complete",
       description: "Attendance data has been exported successfully.",
@@ -269,7 +292,7 @@ const LecturerDashboard = () => {
                 <CardTitle>Attendance Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <AttendanceChart data={MOCK_ATTENDANCE_DATA} />
+                {attendanceData && <AttendanceChart data={attendanceData} />}
               </CardContent>
             </Card>
 
