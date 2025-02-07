@@ -62,7 +62,7 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
         .select(`
           student_id,
           enrollment_date,
-          profiles:student_id (
+          profiles (
             full_name
           )
         `)
