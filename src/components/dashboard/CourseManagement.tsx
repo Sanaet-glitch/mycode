@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileEdit, Loader2, Plus, Users } from "lucide-react";
+import { FileEdit, Key, Loader2, Plus, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,12 @@ interface Course {
   enrollment_key: string;
 }
 
+interface Student {
+  id: string;
+  full_name: string;
+  enrollment_date: string;
+}
+
 interface CourseManagementProps {
   userId: string;
 }
@@ -24,6 +30,7 @@ interface CourseManagementProps {
 export const CourseManagement = ({ userId }: CourseManagementProps) => {
   const [isCreateCourseOpen, setIsCreateCourseOpen] = useState(false);
   const [isEditCourseOpen, setIsEditCourseOpen] = useState(false);
+  const [isViewStudentsOpen, setIsViewStudentsOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [newCourseTitle, setNewCourseTitle] = useState("");
   const [newCourseDescription, setNewCourseDescription] = useState("");
@@ -44,6 +51,33 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
       return data;
     },
     enabled: !!userId,
+  });
+
+  // Fetch enrolled students for a course
+  const { data: enrolledStudents, isLoading: isLoadingStudents } = useQuery({
+    queryKey: ['enrolled-students', selectedCourse?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('enrollments')
+        .select(`
+          student_id,
+          enrollment_date,
+          profiles:student_id (
+            full_name
+          )
+        `)
+        .eq('course_id', selectedCourse?.id)
+        .order('enrollment_date', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map(enrollment => ({
+        id: enrollment.student_id,
+        full_name: enrollment.profiles.full_name,
+        enrollment_date: new Date(enrollment.enrollment_date).toLocaleDateString(),
+      }));
+    },
+    enabled: !!selectedCourse?.id && isViewStudentsOpen,
   });
 
   // Create course mutation
@@ -89,12 +123,13 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
 
   // Update course mutation
   const updateCourseMutation = useMutation({
-    mutationFn: async (courseData: { id: string; title: string; description: string }) => {
+    mutationFn: async (courseData: { id: string; title: string; description: string; enrollment_key: string }) => {
       const { data, error } = await supabase
         .from('courses')
         .update({
           title: courseData.title,
           description: courseData.description,
+          enrollment_key: courseData.enrollment_key,
           updated_at: new Date().toISOString(),
         })
         .eq('id', courseData.id)
@@ -153,12 +188,18 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
       id: selectedCourse.id,
       title: selectedCourse.title,
       description: selectedCourse.description || "",
+      enrollment_key: selectedCourse.enrollment_key,
     });
   };
 
   const handleEditClick = (course: Course) => {
     setSelectedCourse(course);
     setIsEditCourseOpen(true);
+  };
+
+  const handleViewStudentsClick = (course: Course) => {
+    setSelectedCourse(course);
+    setIsViewStudentsOpen(true);
   };
 
   return (
@@ -251,13 +292,7 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => {
-                          // TODO: Implement view enrolled students
-                          toast({
-                            title: "Coming soon",
-                            description: "View enrolled students feature is coming soon.",
-                          });
-                        }}
+                        onClick={() => handleViewStudentsClick(course)}
                       >
                         <Users className="h-4 w-4" />
                       </Button>
@@ -302,6 +337,32 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
                 }
               />
             </div>
+            <div className="space-y-2">
+              <Label>Enrollment Key</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter enrollment key"
+                  value={selectedCourse?.enrollment_key || ""}
+                  onChange={(e) =>
+                    setSelectedCourse(
+                      prev => prev ? { ...prev, enrollment_key: e.target.value } : null
+                    )
+                  }
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    const newKey = Math.random().toString(36).substring(2, 10).toUpperCase();
+                    setSelectedCourse(
+                      prev => prev ? { ...prev, enrollment_key: newKey } : null
+                    );
+                  }}
+                >
+                  <Key className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -314,6 +375,46 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
               Update Course
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Enrolled Students Dialog */}
+      <Dialog open={isViewStudentsOpen} onOpenChange={setIsViewStudentsOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>Enrolled Students</DialogTitle>
+            <DialogDescription>
+              Students enrolled in {selectedCourse?.title}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {isLoadingStudents ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : enrolledStudents?.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No students enrolled in this course yet.
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Student Name</TableHead>
+                    <TableHead>Enrollment Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {enrolledStudents?.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>{student.full_name}</TableCell>
+                      <TableCell>{student.enrollment_date}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
