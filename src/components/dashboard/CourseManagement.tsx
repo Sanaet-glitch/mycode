@@ -65,7 +65,9 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
           id,
           student_id,
           enrollment_date,
-          student:profiles(full_name)
+          profiles (
+            full_name
+          )
         `)
         .eq('course_id', selectedCourse?.id)
         .order('enrollment_date', { ascending: false });
@@ -79,7 +81,7 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
 
       return enrollmentData.map(enrollment => ({
         id: enrollment.student_id,
-        full_name: enrollment.student?.full_name || 'Unknown',
+        full_name: enrollment.profiles?.full_name || 'Unknown',
         enrollment_date: new Date(enrollment.enrollment_date).toLocaleDateString(),
       }));
     },
