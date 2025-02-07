@@ -57,23 +57,32 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
   const { data: enrolledStudents, isLoading: isLoadingStudents } = useQuery({
     queryKey: ['enrolled-students', selectedCourse?.id],
     queryFn: async () => {
+      console.log('Fetching enrolled students for course:', selectedCourse?.id);
+      
       const { data, error } = await supabase
         .from('enrollments')
         .select(`
           student_id,
           enrollment_date,
-          profiles (
-            full_name
+          student:student_id (
+            profiles!inner (
+              full_name
+            )
           )
         `)
         .eq('course_id', selectedCourse?.id)
         .order('enrollment_date', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching enrolled students:', error);
+        throw error;
+      }
+
+      console.log('Enrolled students data:', data);
 
       return data.map(enrollment => ({
         id: enrollment.student_id,
-        full_name: enrollment.profiles.full_name,
+        full_name: enrollment.student.profiles.full_name,
         enrollment_date: new Date(enrollment.enrollment_date).toLocaleDateString(),
       }));
     },
