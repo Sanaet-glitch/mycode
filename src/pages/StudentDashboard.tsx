@@ -14,6 +14,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from "react-hook-form";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
+import { StudentCourses } from "@/components/dashboard/StudentCourses";
 
 const MOCK_CLASSES: Class[] = [
   { id: "1", name: "Mathematics 101", schedule: "Mon, Wed 9:00 AM" },
@@ -161,185 +162,58 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Card className="border-none shadow-lg animate-fade-in">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl text-primary">Student Dashboard</CardTitle>
-              <CardDescription>Mark your attendance securely with location verification</CardDescription>
-            </div>
-            <Link to="/">
-              <Button variant="outline" size="sm">Change Role</Button>
-            </Link>
+      <div className="max-w-6xl mx-auto space-y-6">
+        <Card className="border-none shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary">Student Dashboard</CardTitle>
+            <CardDescription>Track your courses and attendance</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Attendance Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Total Classes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.total}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Classes Attended</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.present}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Attendance Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold">{stats.percentage}%</p>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Course Management */}
+            <StudentCourses />
 
-            {/* Analytics Chart */}
-            <AttendanceChart data={MOCK_MONTHLY_DATA} />
-
-            {/* Calendar View */}
+            {/* Attendance Analytics */}
             <Card>
               <CardHeader>
-                <CardTitle>Class Schedule</CardTitle>
+                <CardTitle>Attendance Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  className="rounded-md border"
-                />
+                {<AttendanceChart data={MOCK_MONTHLY_DATA} />}
               </CardContent>
             </Card>
 
-            {locationError && (
-              <Alert variant="destructive">
-                <AlertDescription>{locationError}</AlertDescription>
-              </Alert>
-            )}
-            
-            <div className="space-y-4">
-              <div className="w-full">
-                <label className="text-sm font-medium mb-2 block">Select Class</label>
-                <Select value={selectedClass} onValueChange={setSelectedClass}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Choose a class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MOCK_CLASSES.map((cls) => (
-                      <SelectItem key={cls.id} value={cls.id}>
-                        {cls.name} - {cls.schedule}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col items-center gap-4 p-6 bg-gray-50/80 rounded-lg backdrop-blur-sm">
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <Button 
                   onClick={checkLocation}
-                  className="bg-primary hover:bg-primary/90 text-white"
-                  size="lg"
-                  disabled={!selectedClass}
+                  className="w-full"
+                  variant="outline"
                 >
                   <MapPin className="mr-2 h-4 w-4" />
                   Mark Attendance
                 </Button>
-                
-                {location && (
-                  <div className="text-sm text-gray-600">
-                    Location verified at: {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4">
-              <Button onClick={handleExport} variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export Records
-              </Button>
-              <Button onClick={handleNotificationToggle} variant="outline">
-                <Bell className="mr-2 h-4 w-4" />
-                Enable Reminders
-              </Button>
-            </div>
-
-            {/* Excuse Submission Form */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Submit Absence Excuse</CardTitle>
-                <CardDescription>Provide a reason for your absence</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(handleExcuseSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="excuse"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Excuse</FormLabel>
-                          <FormControl>
-                            <Textarea placeholder="Enter your excuse here..." {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            Please provide a detailed explanation for your absence.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit">
-                      <FileText className="mr-2 h-4 w-4" />
-                      Submit Excuse
-                    </Button>
-                  </form>
-                </Form>
+                <Button 
+                  onClick={handleExport}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Export Attendance Data
+                </Button>
+                <Button 
+                  onClick={handleNotificationToggle}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  Enable Reminders
+                </Button>
               </CardContent>
             </Card>
-
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-4">Attendance History</h3>
-              <div className="bg-white/80 rounded-lg shadow-sm overflow-hidden backdrop-blur-sm">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50/80">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white/60 divide-y divide-gray-200">
-                    {MOCK_ATTENDANCE.map((record) => (
-                      <tr key={record.id} className="hover:bg-gray-50/80 transition-colors duration-200">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{record.className}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{record.date}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            record.status === 'present' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {record.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{record.location}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
