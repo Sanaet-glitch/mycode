@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MapPin, Download, Bell } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { calculateDistance, getLecturerLocation } from "@/utils/distance";
+import { calculateDistance } from "@/utils/distance";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
 import { StudentCourses } from "@/components/dashboard/StudentCourses";
@@ -82,12 +82,12 @@ const StudentDashboard = () => {
       }
 
       // Mark attendance for all valid sessions
-      const attendancePromises = validSessions.map(session =>
+      const attendancePromises = validSessions.map(activeSession =>
         supabase
           .from('attendance')
           .insert({
             student_id: session?.user?.id,
-            class_session_id: session.id,
+            class_session_id: activeSession.id,
             latitude: location.latitude,
             longitude: location.longitude
           })

@@ -27,9 +27,8 @@ export const AvailableCourses = () => {
           title,
           description,
           lecturer:lecturer_id (
-            profile:profiles (
-              full_name
-            )
+            id,
+            full_name
           )
         `)
         .not('id', 'in', `(${enrolledCourseIds.join(',')})`)
@@ -69,7 +68,7 @@ export const AvailableCourses = () => {
                 <TableRow key={course.id}>
                   <TableCell className="font-medium">{course.title}</TableCell>
                   <TableCell>{course.description || "No description"}</TableCell>
-                  <TableCell>{course.lecturer?.profile?.full_name}</TableCell>
+                  <TableCell>{course.lecturer?.full_name}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
