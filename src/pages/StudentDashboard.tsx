@@ -1,32 +1,15 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { MapPin, Download, Bell, FileText } from "lucide-react";
+import { MapPin, Download, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { calculateDistance, getLecturerLocation } from "@/utils/distance";
-import { Class, AttendanceRecord } from "@/types/attendance";
-import { Link } from "react-router-dom";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
 import { StudentCourses } from "@/components/dashboard/StudentCourses";
-
-const MOCK_CLASSES: Class[] = [
-  { id: "1", name: "Mathematics 101", schedule: "Mon, Wed 9:00 AM" },
-  { id: "2", name: "Physics 201", schedule: "Tue, Thu 11:00 AM" },
-  { id: "3", name: "Computer Science 301", schedule: "Mon, Fri 2:00 PM" },
-];
-
-const MOCK_ATTENDANCE: AttendanceRecord[] = [
-  { id: "1", classId: "1", className: "Mathematics 101", date: "2024-02-20", status: "present", location: "Near Lecturer" },
-  { id: "2", classId: "2", className: "Physics 201", date: "2024-02-21", status: "present", location: "Near Lecturer" },
-  { id: "3", classId: "1", className: "Mathematics 101", date: "2024-02-22", status: "absent", location: "N/A" },
-];
+import { AvailableCourses } from "@/components/dashboard/AvailableCourses";
+import { ClassSchedule } from "@/components/dashboard/ClassSchedule";
 
 const MOCK_MONTHLY_DATA = [
   { month: "Jan", present: 15, absent: 2 },
@@ -37,16 +20,7 @@ const MOCK_MONTHLY_DATA = [
 const StudentDashboard = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string>("");
-  const [selectedClass, setSelectedClass] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const { toast } = useToast();
-
-  const form = useForm({
-    defaultValues: {
-      excuse: "",
-      date: new Date(),
-    },
-  });
 
   useEffect(() => {
     if (Notification.permission === "default") {
@@ -61,17 +35,6 @@ const StudentDashboard = () => {
         icon: "/favicon.ico"
       });
     }
-  };
-
-  const calculateAttendanceStats = () => {
-    const totalClasses = MOCK_ATTENDANCE.length;
-    const presentClasses = MOCK_ATTENDANCE.filter(record => record.status === "present").length;
-    const attendancePercentage = (presentClasses / totalClasses) * 100;
-    return {
-      total: totalClasses,
-      present: presentClasses,
-      percentage: attendancePercentage.toFixed(1)
-    };
   };
 
   const checkLocation = () => {
@@ -125,15 +88,8 @@ const StudentDashboard = () => {
     );
   };
 
-  const handleExcuseSubmit = (data: { excuse: string }) => {
-    toast({
-      title: "Excuse Submitted",
-      description: "Your absence excuse has been submitted for review.",
-    });
-  };
-
   const handleExport = () => {
-    exportToCSV(MOCK_ATTENDANCE);
+    exportToCSV([]);
     toast({
       title: "Export Complete",
       description: "Your attendance records have been downloaded.",
@@ -142,9 +98,6 @@ const StudentDashboard = () => {
 
   const handleNotificationToggle = () => {
     if (Notification.permission === "granted") {
-      MOCK_CLASSES.forEach(cls => {
-        scheduleNotification(cls.name, cls.schedule);
-      });
       toast({
         title: "Notifications Enabled",
         description: "You will receive reminders 15 minutes before your classes.",
@@ -158,8 +111,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const stats = calculateAttendanceStats();
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white p-6">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -171,6 +122,12 @@ const StudentDashboard = () => {
           <CardContent className="space-y-6">
             {/* Course Management */}
             <StudentCourses />
+
+            {/* Available Courses */}
+            <AvailableCourses />
+
+            {/* Class Schedule */}
+            <ClassSchedule />
 
             {/* Attendance Analytics */}
             <Card>
