@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Download, Bell } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { calculateDistance, getLecturerLocation } from "@/utils/distance";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
@@ -10,6 +10,9 @@ import { exportToCSV } from "@/utils/export";
 import { StudentCourses } from "@/components/dashboard/StudentCourses";
 import { AvailableCourses } from "@/components/dashboard/AvailableCourses";
 import { ClassSchedule } from "@/components/dashboard/ClassSchedule";
+import { supabase } from "@/integrations/supabase/client";
+import { SessionContext } from "@/App";
+import { useMutation } from "@tanstack/react-query";
 
 const MOCK_MONTHLY_DATA = [
   { month: "Jan", present: 15, absent: 2 },
@@ -21,6 +24,7 @@ const StudentDashboard = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string>("");
   const { toast } = useToast();
+  const { session } = useContext(SessionContext);
 
   useEffect(() => {
     if (Notification.permission === "default") {
@@ -28,14 +32,84 @@ const StudentDashboard = () => {
     }
   }, []);
 
-  const scheduleNotification = (className: string, schedule: string) => {
-    if (Notification.permission === "granted") {
-      const notification = new Notification("Class Reminder", {
-        body: `Your ${className} class starts in 15 minutes (${schedule})`,
-        icon: "/favicon.ico"
+  const markAttendanceMutation = useMutation({
+    mutationFn: async (location: { latitude: number; longitude: number }) => {
+      // First, get active sessions for enrolled courses
+      const { data: enrollments } = await supabase
+        .from('enrollments')
+        .select('course_id')
+        .eq('student_id', session?.user?.id);
+
+      if (!enrollments?.length) {
+        throw new Error('No enrolled courses found');
+      }
+
+      const courseIds = enrollments.map(e => e.course_id);
+
+      const { data: activeSessions } = await supabase
+        .from('class_sessions')
+        .select(`
+          id,
+          beacon_latitude,
+          beacon_longitude,
+          proximity_radius,
+          class_id,
+          classes (
+            course_id
+          )
+        `)
+        .eq('is_active', true)
+        .in('classes.course_id', courseIds);
+
+      if (!activeSessions?.length) {
+        throw new Error('No active sessions found');
+      }
+
+      // Check distance for each active session
+      const validSessions = activeSessions.filter(session => {
+        if (!session.beacon_latitude || !session.beacon_longitude) return false;
+        
+        const distance = calculateDistance(
+          { latitude: location.latitude, longitude: location.longitude },
+          { latitude: session.beacon_latitude, longitude: session.beacon_longitude }
+        );
+        
+        return distance <= (session.proximity_radius || 100);
+      });
+
+      if (!validSessions.length) {
+        throw new Error('Not within range of any active session');
+      }
+
+      // Mark attendance for all valid sessions
+      const attendancePromises = validSessions.map(session =>
+        supabase
+          .from('attendance')
+          .insert({
+            student_id: session?.user?.id,
+            class_session_id: session.id,
+            latitude: location.latitude,
+            longitude: location.longitude
+          })
+      );
+
+      await Promise.all(attendancePromises);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Attendance Marked",
+        description: "Your attendance has been successfully recorded.",
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Error marking attendance:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to mark attendance. Please try again.",
       });
     }
-  };
+  });
 
   const checkLocation = () => {
     if (!navigator.geolocation) {
@@ -50,32 +124,7 @@ const StudentDashboard = () => {
           longitude: position.coords.longitude,
         };
         setLocation(userLocation);
-
-        const lecturerLocation = getLecturerLocation();
-        if (!lecturerLocation) {
-          toast({
-            variant: "destructive",
-            title: "Location Error",
-            description: "Lecturer's location is not available. Please wait for the lecturer to set their location.",
-          });
-          return;
-        }
-
-        const distanceFromLecturer = calculateDistance(userLocation, lecturerLocation);
-        const isWithinRange = distanceFromLecturer <= 100;
-
-        if (isWithinRange) {
-          toast({
-            title: "Location verified",
-            description: "You are within range of your lecturer. Attendance marked.",
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Location Error",
-            description: "You must be within 100 meters of your lecturer to mark attendance.",
-          });
-        }
+        markAttendanceMutation.mutate(userLocation);
       },
       (error) => {
         setLocationError("Unable to retrieve your location");
@@ -149,9 +198,10 @@ const StudentDashboard = () => {
                   onClick={checkLocation}
                   className="w-full"
                   variant="outline"
+                  disabled={markAttendanceMutation.isPending}
                 >
                   <MapPin className="mr-2 h-4 w-4" />
-                  Mark Attendance
+                  {markAttendanceMutation.isPending ? "Marking Attendance..." : "Mark Attendance"}
                 </Button>
                 <Button 
                   onClick={handleExport}

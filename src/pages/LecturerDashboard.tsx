@@ -1,15 +1,16 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MapPin, Plus, Download, Users, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { setLecturerLocation } from "@/utils/distance";
 import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
 import { AttendanceRecord } from "@/types/attendance";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { SessionContext } from "@/App";
 import { useContext } from "react";
 import { CourseManagement } from "@/components/dashboard/CourseManagement";
@@ -34,11 +35,47 @@ const LecturerDashboard = () => {
       // For now, return sample data structured correctly
       return months.map(month => ({
         month,
-        present: Math.floor(Math.random() * 30) + 20, // Random number between 20-50
-        absent: Math.floor(Math.random() * 10) + 1,   // Random number between 1-10
+        present: Math.floor(Math.random() * 30) + 20,
+        absent: Math.floor(Math.random() * 10) + 1,
       }));
     },
     enabled: !!session?.user?.id,
+  });
+
+  const activateSessionMutation = useMutation({
+    mutationFn: async ({ classId, location }: { classId: string, location: { latitude: number; longitude: number } }) => {
+      const { data, error } = await supabase
+        .from('class_sessions')
+        .insert([
+          {
+            class_id: classId,
+            session_date: new Date().toISOString().split('T')[0],
+            is_active: true,
+            beacon_latitude: location.latitude,
+            beacon_longitude: location.longitude,
+            proximity_radius: 100 // 100 meters radius
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Session Activated",
+        description: "Students can now mark their attendance.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error activating session:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to activate session. Please try again.",
+      });
+    }
   });
 
   const checkLocation = () => {
