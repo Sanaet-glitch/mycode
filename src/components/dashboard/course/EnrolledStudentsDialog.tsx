@@ -20,17 +20,18 @@ export const EnrolledStudentsDialog = ({ course, isOpen, onOpenChange }: Enrolle
   const { data: enrolledStudents, isLoading } = useQuery({
     queryKey: ['enrolled-students', course?.id],
     queryFn: async () => {
-      const { data: enrollmentData, error } = await supabase
+      if (!course?.id) throw new Error('Course ID is required');
+
+      const { data: enrollments, error } = await supabase
         .from('enrollments')
         .select(`
           id,
-          student_id,
           enrollment_date,
-          profiles!student_id (
+          profiles:student_id (
             full_name
           )
         `)
-        .eq('course_id', course?.id)
+        .eq('course_id', course.id)
         .order('enrollment_date', { ascending: false });
 
       if (error) {
@@ -38,8 +39,8 @@ export const EnrolledStudentsDialog = ({ course, isOpen, onOpenChange }: Enrolle
         throw error;
       }
 
-      return enrollmentData.map(enrollment => ({
-        id: enrollment.student_id,
+      return enrollments.map(enrollment => ({
+        id: enrollment.id,
         full_name: enrollment.profiles?.full_name || 'Unknown',
         enrollment_date: new Date(enrollment.enrollment_date).toLocaleDateString(),
       }));
