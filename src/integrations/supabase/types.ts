@@ -42,6 +42,13 @@ export type Database = {
             referencedRelation: "class_sessions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_student_profile"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       class_sessions: {
@@ -154,7 +161,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_lecturer_profile"
+            columns: ["lecturer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enrollments: {
         Row: {
@@ -184,6 +199,13 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_student_profile"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
