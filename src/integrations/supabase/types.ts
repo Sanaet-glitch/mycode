@@ -16,7 +16,11 @@ export type Database = {
           latitude: number
           longitude: number
           marked_at: string
+          overridden_by: string | null
+          override_reason: string | null
+          status: string | null
           student_id: string
+          verification_attempts: number | null
         }
         Insert: {
           class_session_id: string
@@ -24,7 +28,11 @@ export type Database = {
           latitude: number
           longitude: number
           marked_at?: string
+          overridden_by?: string | null
+          override_reason?: string | null
+          status?: string | null
           student_id: string
+          verification_attempts?: number | null
         }
         Update: {
           class_session_id?: string
@@ -32,7 +40,11 @@ export type Database = {
           latitude?: number
           longitude?: number
           marked_at?: string
+          overridden_by?: string | null
+          override_reason?: string | null
+          status?: string | null
           student_id?: string
+          verification_attempts?: number | null
         }
         Relationships: [
           {
@@ -60,6 +72,8 @@ export type Database = {
           id: string
           is_active: boolean | null
           proximity_radius: number | null
+          retry_count: number | null
+          retry_interval: number | null
           session_date: string
         }
         Insert: {
@@ -70,6 +84,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           proximity_radius?: number | null
+          retry_count?: number | null
+          retry_interval?: number | null
           session_date: string
         }
         Update: {
@@ -80,6 +96,8 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           proximity_radius?: number | null
+          retry_count?: number | null
+          retry_interval?: number | null
           session_date?: string
         }
         Relationships: [

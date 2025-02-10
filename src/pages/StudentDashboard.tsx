@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Download, Bell } from "lucide-react";
+import { MapPin, Download, Bell, Loader2 } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { calculateDistance } from "@/utils/distance";
@@ -22,7 +22,8 @@ const MOCK_MONTHLY_DATA = [
 
 const StudentDashboard = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [locationError, setLocationError] = useState<string>("");
+  const [verificationAttempts, setVerificationAttempts] = useState(0);
+  const [retryTimeout, setRetryTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const { session } = useContext(SessionContext);
 
@@ -53,6 +54,8 @@ const StudentDashboard = () => {
           beacon_latitude,
           beacon_longitude,
           proximity_radius,
+          retry_count,
+          retry_interval,
           class_id,
           classes (
             course_id
@@ -78,6 +81,11 @@ const StudentDashboard = () => {
       });
 
       if (!validSessions.length) {
+        // Get the first session's retry settings
+        const session = activeSessions[0];
+        if (verificationAttempts < (session.retry_count || 3)) {
+          throw new Error('location_retry');
+        }
         throw new Error('Not within range of any active session');
       }
 
@@ -89,25 +97,52 @@ const StudentDashboard = () => {
             student_id: session?.user?.id,
             class_session_id: activeSession.id,
             latitude: location.latitude,
-            longitude: location.longitude
+            longitude: location.longitude,
+            verification_attempts: verificationAttempts + 1,
+            status: 'verified'
           })
       );
 
       await Promise.all(attendancePromises);
+      setVerificationAttempts(0); // Reset attempts on success
     },
     onSuccess: () => {
       toast({
         title: "Attendance Marked",
         description: "Your attendance has been successfully recorded.",
       });
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+        setRetryTimeout(null);
+      }
     },
     onError: (error: Error) => {
       console.error('Error marking attendance:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to mark attendance. Please try again.",
-      });
+      
+      if (error.message === 'location_retry') {
+        const retryTimeoutId = setTimeout(() => {
+          setVerificationAttempts(prev => prev + 1);
+          checkLocation();
+        }, 30000); // 30 seconds default retry interval
+        
+        setRetryTimeout(retryTimeoutId);
+        
+        toast({
+          title: "Location Verification Failed",
+          description: `Retrying in 30 seconds... Attempt ${verificationAttempts + 1} of 3`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to mark attendance. Please try again.",
+        });
+        setVerificationAttempts(0); // Reset attempts on final failure
+        if (retryTimeout) {
+          clearTimeout(retryTimeout);
+          setRetryTimeout(null);
+        }
+      }
     }
   });
 
@@ -127,15 +162,29 @@ const StudentDashboard = () => {
         markAttendanceMutation.mutate(userLocation);
       },
       (error) => {
-        setLocationError("Unable to retrieve your location");
+        console.error('Geolocation error:', error);
         toast({
           variant: "destructive",
           title: "Location Error",
           description: "Please enable location services to mark attendance",
         });
+      },
+      {
+        enableHighAccuracy: true, // Request high accuracy for better location precision
+        timeout: 10000, // 10 second timeout
+        maximumAge: 0 // Don't use cached position
       }
     );
   };
+
+  // Cleanup function for retry timeout
+  useEffect(() => {
+    return () => {
+      if (retryTimeout) {
+        clearTimeout(retryTimeout);
+      }
+    };
+  }, [retryTimeout]);
 
   const handleExport = () => {
     exportToCSV([]);
@@ -198,10 +247,19 @@ const StudentDashboard = () => {
                   onClick={checkLocation}
                   className="w-full"
                   variant="outline"
-                  disabled={markAttendanceMutation.isPending}
+                  disabled={markAttendanceMutation.isPending || !!retryTimeout}
                 >
-                  <MapPin className="mr-2 h-4 w-4" />
-                  {markAttendanceMutation.isPending ? "Marking Attendance..." : "Mark Attendance"}
+                  {markAttendanceMutation.isPending || retryTimeout ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {retryTimeout ? "Retrying..." : "Verifying Location..."}
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Mark Attendance
+                    </>
+                  )}
                 </Button>
                 <Button 
                   onClick={handleExport}
