@@ -14,10 +14,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionContext } from "@/App";
 import { useContext } from "react";
 import { CourseManagement } from "@/components/dashboard/CourseManagement";
+import { Slider } from "@/components/ui/slider";
 
 const LecturerDashboard = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string>("");
+  const [proximityRadius, setProximityRadius] = useState<number>(100);
   const { toast } = useToast();
   const { session } = useContext(SessionContext);
   const queryClient = useQueryClient();
@@ -81,7 +83,7 @@ const LecturerDashboard = () => {
             is_active: true,
             beacon_latitude: location.latitude,
             beacon_longitude: location.longitude,
-            proximity_radius: 100 // 100 meters radius
+            proximity_radius: proximityRadius // Use the proximity radius from state
           }
         ])
         .select()
@@ -265,30 +267,45 @@ const LecturerDashboard = () => {
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button 
-                  onClick={checkLocation}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Set Location Beacon
-                </Button>
-                <Button 
-                  onClick={handleBulkAttendance}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Mark Bulk Attendance
-                </Button>
-                <Button 
-                  onClick={handleExportAttendance}
-                  className="w-full"
-                  variant="outline"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export Attendance Data
-                </Button>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Proximity Radius (meters): {proximityRadius}m
+                    </label>
+                    <Slider
+                      value={[proximityRadius]}
+                      onValueChange={(value) => setProximityRadius(value[0])}
+                      min={10}
+                      max={1000}
+                      step={10}
+                      className="w-full"
+                    />
+                  </div>
+                  <Button 
+                    onClick={checkLocation}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Set Location Beacon
+                  </Button>
+                  <Button 
+                    onClick={handleBulkAttendance}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Users className="mr-2 h-4 w-4" />
+                    Mark Bulk Attendance
+                  </Button>
+                  <Button 
+                    onClick={handleExportAttendance}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export Attendance Data
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </CardContent>
