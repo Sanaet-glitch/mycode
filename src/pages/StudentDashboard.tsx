@@ -22,6 +22,7 @@ const MOCK_MONTHLY_DATA = [
 
 const StudentDashboard = () => {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [verificationAttempts, setVerificationAttempts] = useState(0);
   const [retryTimeout, setRetryTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
@@ -115,6 +116,7 @@ const StudentDashboard = () => {
         clearTimeout(retryTimeout);
         setRetryTimeout(null);
       }
+      setLocationError(null); // Clear any existing location errors
     },
     onError: (error: Error) => {
       console.error('Error marking attendance:', error);
@@ -159,10 +161,12 @@ const StudentDashboard = () => {
           longitude: position.coords.longitude,
         };
         setLocation(userLocation);
+        setLocationError(null); // Clear any existing location errors
         markAttendanceMutation.mutate(userLocation);
       },
       (error) => {
         console.error('Geolocation error:', error);
+        setLocationError("Please enable location services to mark attendance");
         toast({
           variant: "destructive",
           title: "Location Error",
