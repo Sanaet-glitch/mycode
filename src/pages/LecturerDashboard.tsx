@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { MapPin, Plus, Download, Users, Loader2 } from "lucide-react";
+import { MapPin, Plus, Download, Users, Loader2, Power } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { setLecturerLocation } from "@/utils/distance";
@@ -10,7 +10,7 @@ import { AttendanceChart } from "@/components/dashboard/AttendanceChart";
 import { exportToCSV } from "@/utils/export";
 import { AttendanceRecord } from "@/types/attendance";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SessionContext } from "@/App";
 import { useContext } from "react";
 import { CourseManagement } from "@/components/dashboard/CourseManagement";
@@ -20,6 +20,34 @@ const LecturerDashboard = () => {
   const [locationError, setLocationError] = useState<string>("");
   const { toast } = useToast();
   const { session } = useContext(SessionContext);
+  const queryClient = useQueryClient();
+
+  // Query to get active class sessions
+  const { data: activeClasses, isLoading: isLoadingActiveClasses } = useQuery({
+    queryKey: ['active-classes', session?.user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('class_sessions')
+        .select(`
+          *,
+          class:classes (
+            id,
+            name,
+            course:courses (
+              id,
+              title,
+              lecturer_id
+            )
+          )
+        `)
+        .eq('is_active', true)
+        .filter('class.course.lecturer_id', 'eq', session?.user?.id);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
 
   // Fetch attendance data for the chart
   const { data: attendanceData } = useQuery({
@@ -63,6 +91,7 @@ const LecturerDashboard = () => {
       return data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['active-classes'] });
       toast({
         title: "Session Activated",
         description: "Students can now mark their attendance.",
@@ -74,6 +103,35 @@ const LecturerDashboard = () => {
         variant: "destructive",
         title: "Error",
         description: "Failed to activate session. Please try again.",
+      });
+    }
+  });
+
+  const deactivateSessionMutation = useMutation({
+    mutationFn: async (sessionId: string) => {
+      const { data, error } = await supabase
+        .from('class_sessions')
+        .update({ is_active: false })
+        .eq('id', sessionId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['active-classes'] });
+      toast({
+        title: "Session Deactivated",
+        description: "Attendance marking has been stopped.",
+      });
+    },
+    onError: (error) => {
+      console.error('Error deactivating session:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to deactivate session. Please try again.",
       });
     }
   });
@@ -143,6 +201,47 @@ const LecturerDashboard = () => {
             <CardDescription>Manage courses and track attendance</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Active Sessions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Sessions</CardTitle>
+                <CardDescription>Currently running class sessions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoadingActiveClasses ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : activeClasses?.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No active sessions at the moment.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {activeClasses?.map((session) => (
+                      <Alert key={session.id}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <AlertDescription>
+                              {session.class?.course?.title} - {session.class?.name}
+                            </AlertDescription>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => deactivateSessionMutation.mutate(session.id)}
+                          >
+                            <Power className="h-4 w-4 mr-2" />
+                            Stop Session
+                          </Button>
+                        </div>
+                      </Alert>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Course Management */}
             <Card>
               <CardContent className="pt-6">
