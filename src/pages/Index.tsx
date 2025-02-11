@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
@@ -7,24 +8,26 @@ import { useEffect, useState } from "react";
 const Index = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [fullName, setFullName] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserRole = async () => {
+    const fetchUserProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, full_name')
           .eq('id', user.id)
           .single();
         
         if (profile) {
           setUserRole(profile.role);
+          setFullName(profile.full_name);
         }
       }
     };
 
-    fetchUserRole();
+    fetchUserProfile();
   }, []);
 
   const handleLogout = async () => {
@@ -59,8 +62,8 @@ const Index = () => {
         <Card className="border-none shadow-lg animate-fade-in">
           <CardHeader>
             <CardTitle className="text-2xl text-primary">Campus Attendance System</CardTitle>
-            <CardDescription>
-              Welcome! Please select your role to continue
+            <CardDescription className="text-lg">
+              {fullName ? `Welcome back, ${fullName}!` : 'Welcome back!'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
