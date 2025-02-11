@@ -1,14 +1,12 @@
 
 import { useState } from "react";
-import { FileEdit, Users, Calendar } from "lucide-react";
+import { FileEdit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateCourseDialog } from "./course/CreateCourseDialog";
 import { EditCourseDialog } from "./course/EditCourseDialog";
-import { EnrolledStudentsDialog } from "./course/EnrolledStudentsDialog";
-import { ClassScheduleDialog } from "./course/ClassScheduleDialog";
 
 interface Course {
   id: string;
@@ -23,8 +21,6 @@ interface CourseManagementProps {
 
 export const CourseManagement = ({ userId }: CourseManagementProps) => {
   const [isEditCourseOpen, setIsEditCourseOpen] = useState(false);
-  const [isViewStudentsOpen, setIsViewStudentsOpen] = useState(false);
-  const [isManageClassesOpen, setIsManageClassesOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 
   const { data: courses, isLoading: isLoadingCourses } = useQuery({
@@ -45,16 +41,6 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
   const handleEditClick = (course: Course) => {
     setSelectedCourse(course);
     setIsEditCourseOpen(true);
-  };
-
-  const handleViewStudentsClick = (course: Course) => {
-    setSelectedCourse(course);
-    setIsViewStudentsOpen(true);
-  };
-
-  const handleManageClassesClick = (course: Course) => {
-    setSelectedCourse(course);
-    setIsManageClassesOpen(true);
   };
 
   return (
@@ -94,29 +80,13 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
                     </code>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditClick(course)}
-                      >
-                        <FileEdit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewStudentsClick(course)}
-                      >
-                        <Users className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleManageClassesClick(course)}
-                      >
-                        <Calendar className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditClick(course)}
+                    >
+                      <FileEdit className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -129,18 +99,6 @@ export const CourseManagement = ({ userId }: CourseManagementProps) => {
         course={selectedCourse}
         isOpen={isEditCourseOpen}
         onOpenChange={setIsEditCourseOpen}
-      />
-
-      <EnrolledStudentsDialog
-        course={selectedCourse}
-        isOpen={isViewStudentsOpen}
-        onOpenChange={setIsViewStudentsOpen}
-      />
-
-      <ClassScheduleDialog
-        course={selectedCourse}
-        isOpen={isManageClassesOpen}
-        onOpenChange={setIsManageClassesOpen}
       />
     </div>
   );
