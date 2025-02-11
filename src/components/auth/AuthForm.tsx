@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,24 +54,29 @@ export const AuthForm = ({ isLogin, onToggleMode }: AuthFormProps) => {
     setLoading(true);
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email: values.email,
           password: values.password,
         });
-        if (error) throw error;
+        
+        if (signInError) throw signInError;
+        
         navigate("/");
       } else {
-        const { error } = await supabase.auth.signUp({
+        // Sign up flow
+        const { error: signUpError } = await supabase.auth.signUp({
           email: values.email,
           password: values.password,
           options: {
             data: {
-              full_name: values.fullName,
+              full_name: values.fullName || values.email, // Use email as fallback
               role: values.role,
             },
           },
         });
-        if (error) throw error;
+        
+        if (signUpError) throw signUpError;
+        
         toast({
           title: "Success",
           description: "Please check your email to verify your account",
