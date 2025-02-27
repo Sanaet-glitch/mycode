@@ -63,6 +63,13 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'image/*': ['.png', '.jpg', '.jpeg'],
+    },
+    maxSize: 10485760, // 10MB
   });
 
   return (

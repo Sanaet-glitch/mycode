@@ -42,4 +42,5 @@ export interface CourseMaterial extends TimestampFields {
   type: 'document' | 'link' | 'file';
   url?: string;
   file_path?: string;
+  folder_id?: string;
 } 
