@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Archive, Tags, Copy } from "lucide-react";
 import { useCourseManagement } from "@/hooks/use-course-management";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { BatchTagManageDialog } from "../categories/BatchTagManageDialog";
 
 interface BatchActionButtonsProps {
   selectedCourses: string[];
@@ -14,6 +15,7 @@ export const BatchActionButtons = ({
   onComplete,
 }: BatchActionButtonsProps) => {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [showTagDialog, setShowTagDialog] = useState(false);
   const { useArchiveCourse } = useCourseManagement();
   const archiveCourse = useArchiveCourse();
 
@@ -42,6 +44,7 @@ export const BatchActionButtons = ({
       </Button>
       <Button
         variant="outline"
+        onClick={() => setShowTagDialog(true)}
         disabled={selectedCourses.length === 0}
       >
         <Tags className="mr-2 h-4 w-4" />
@@ -71,6 +74,16 @@ export const BatchActionButtons = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BatchTagManageDialog
+        isOpen={showTagDialog}
+        onOpenChange={setShowTagDialog}
+        selectedCourses={selectedCourses}
+        onComplete={() => {
+          setShowTagDialog(false);
+          onComplete();
+        }}
+      />
     </div>
   );
 }; 
