@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCourseManagement } from "@/hooks/use-course-management";
 import { Upload, Loader2 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { LoadingState } from "@/components/ui/loading-state";
 
 interface FileUploaderProps {
   courseId: string;
@@ -87,15 +88,19 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-          ${isDragActive ? "border-primary bg-primary/10" : "border-muted"}`}
+          ${isDragActive ? "border-primary bg-primary/10" : "border-muted"}
+          ${isUploading ? "pointer-events-none opacity-50" : ""}`}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} disabled={isUploading} />
         {isUploading ? (
-          <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+          <LoadingState message="Uploading file..." />
         ) : (
           <div>
             <Upload className="h-6 w-6 mx-auto mb-2" />
             <p>Drag & drop a file here, or click to select</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Supported files: PDF, DOC, DOCX, PNG, JPG (max 10MB)
+            </p>
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Folder, ChevronRight, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LoadingState } from "@/components/ui/loading-state";
 
 interface Folder {
   id: string;
@@ -20,8 +21,9 @@ export const FolderManager = ({ courseId, onFolderChange }: FolderManagerProps) 
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [newFolderName, setNewFolderName] = useState("");
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreateFolder = () => {
+  const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
       toast({
         variant: "destructive",
@@ -31,14 +33,29 @@ export const FolderManager = ({ courseId, onFolderChange }: FolderManagerProps) 
       return;
     }
 
-    const newFolder: Folder = {
-      id: crypto.randomUUID(),
-      name: newFolderName,
-      parentId: currentFolder,
-    };
+    setIsLoading(true);
+    try {
+      const newFolder: Folder = {
+        id: crypto.randomUUID(),
+        name: newFolderName,
+        parentId: currentFolder,
+      };
 
-    setFolders([...folders, newFolder]);
-    setNewFolderName("");
+      setFolders([...folders, newFolder]);
+      setNewFolderName("");
+      toast({
+        title: "Folder Created",
+        description: "The folder has been created successfully.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create folder. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSelectFolder = (folderId: string | null) => {
@@ -52,6 +69,10 @@ export const FolderManager = ({ courseId, onFolderChange }: FolderManagerProps) 
       handleSelectFolder(null);
     }
   };
+
+  if (isLoading) {
+    return <LoadingState message="Managing folders..." />;
+  }
 
   return (
     <div className="space-y-4">

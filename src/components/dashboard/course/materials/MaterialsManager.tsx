@@ -7,6 +7,8 @@ import { MaterialsSearch } from "./MaterialsSearch";
 import { FolderManager } from "./FolderManager";
 import { useCourseManagement } from "@/hooks/use-course-management";
 import { CourseMaterial } from "@/types/database";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { LoadingState } from "@/components/ui/loading-state";
 
 interface MaterialsManagerProps {
   courseId: string;
@@ -30,45 +32,51 @@ export const MaterialsManager = ({ courseId }: MaterialsManagerProps) => {
     return matchesSearch && matchesType && matchesFolder;
   });
 
+  if (isLoading) {
+    return <LoadingState message="Loading course materials..." />;
+  }
+
   return (
-    <div className="grid grid-cols-4 gap-4">
-      <div className="col-span-1">
-        <FolderManager 
-          courseId={courseId}
-          onFolderChange={setCurrentFolder}
-        />
-      </div>
-      
-      <div className="col-span-3 space-y-6">
-        <MaterialsSearch 
-          onSearch={setSearchQuery}
-          onFilterChange={setTypeFilter}
-        />
+    <ErrorBoundary>
+      <div className="grid grid-cols-4 gap-4">
+        <div className="col-span-1">
+          <FolderManager 
+            courseId={courseId}
+            onFolderChange={setCurrentFolder}
+          />
+        </div>
+        
+        <div className="col-span-3 space-y-6">
+          <MaterialsSearch 
+            onSearch={setSearchQuery}
+            onFilterChange={setTypeFilter}
+          />
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "files" | "links")}>
-          <TabsList>
-            <TabsTrigger value="files">Files</TabsTrigger>
-            <TabsTrigger value="links">Links</TabsTrigger>
-          </TabsList>
-          <TabsContent value="files">
-            <FileUploader 
-              courseId={courseId}
-              currentFolder={currentFolder}
-            />
-          </TabsContent>
-          <TabsContent value="links">
-            <LinkAdder 
-              courseId={courseId}
-              currentFolder={currentFolder}
-            />
-          </TabsContent>
-        </Tabs>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "files" | "links")}>
+            <TabsList>
+              <TabsTrigger value="files">Files</TabsTrigger>
+              <TabsTrigger value="links">Links</TabsTrigger>
+            </TabsList>
+            <TabsContent value="files">
+              <FileUploader 
+                courseId={courseId}
+                currentFolder={currentFolder}
+              />
+            </TabsContent>
+            <TabsContent value="links">
+              <LinkAdder 
+                courseId={courseId}
+                currentFolder={currentFolder}
+              />
+            </TabsContent>
+          </Tabs>
 
-        <MaterialsList 
-          materials={filteredMaterials}
-          isLoading={isLoading}
-        />
+          <MaterialsList 
+            materials={filteredMaterials}
+            isLoading={isLoading}
+          />
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }; 
