@@ -1,6 +1,7 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 import { useCourseManagement } from "@/hooks/use-course-management";
 import { LoadingState } from "@/components/ui/loading-state";
 
@@ -35,7 +36,7 @@ export const CourseList = () => {
             <TableCell>
               <div className="flex gap-2">
                 <Button asChild variant="ghost" size="sm">
-                  <Link href={`/lecturer/courses/${course.id}`}>
+                  <Link to={`/lecturer/courses/${course.id}`}>
                     View Details
                   </Link>
                 </Button>
@@ -46,4 +47,4 @@ export const CourseList = () => {
       </TableBody>
     </Table>
   );
-}; 
+};

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,9 +9,10 @@ import { Link2 } from "lucide-react";
 
 interface LinkAdderProps {
   courseId: string;
+  currentFolder?: string | null;
 }
 
-export const LinkAdder = ({ courseId }: LinkAdderProps) => {
+export const LinkAdder = ({ courseId, currentFolder }: LinkAdderProps) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -34,6 +36,7 @@ export const LinkAdder = ({ courseId }: LinkAdderProps) => {
         description,
         type: "link",
         url,
+        folder_id: currentFolder,
       });
 
       setTitle("");
@@ -76,4 +79,4 @@ export const LinkAdder = ({ courseId }: LinkAdderProps) => {
       </Button>
     </div>
   );
-}; 
+};

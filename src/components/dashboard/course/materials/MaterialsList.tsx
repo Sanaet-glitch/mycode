@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { CourseMaterial } from "@/types/database";
@@ -60,13 +61,13 @@ export const MaterialsList = ({ materials, isLoading }: MaterialsListProps) => {
               <div className="flex space-x-2">
                 {material.type === "link" ? (
                   <Button variant="ghost" size="sm" asChild>
-                    <a href={material.url} target="_blank" rel="noopener noreferrer">
+                    <a href={material.url || "#"} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   </Button>
                 ) : (
                   <Button variant="ghost" size="sm" asChild>
-                    <a href={material.url} download>
+                    <a href={material.url || "#"} download>
                       <Download className="h-4 w-4" />
                     </a>
                   </Button>
@@ -85,4 +86,4 @@ export const MaterialsList = ({ materials, isLoading }: MaterialsListProps) => {
       </TableBody>
     </Table>
   );
-}; 
+};

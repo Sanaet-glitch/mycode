@@ -15,32 +15,39 @@ export interface CourseArchive extends TimestampFields {
 }
 
 // Course Categories
-export interface CourseCategory extends TimestampFields {
+export interface CourseCategory {
   id: string;
   name: string;
-  description?: string;
+  description?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 // Course Tags
-export interface CourseTag extends TimestampFields {
+export interface CourseTag {
   id: string;
   name: string;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 // Course Tag Relations
-export interface CourseTagRelation extends TimestampFields {
+export interface CourseTagRelation {
   course_id: string;
   tag_id: string;
+  created_at?: string | null;
 }
 
 // Course Materials
-export interface CourseMaterial extends TimestampFields {
+export interface CourseMaterial {
   id: string;
   course_id: string;
   title: string;
-  description?: string;
-  type: 'document' | 'link' | 'file';
-  url?: string;
-  file_path?: string;
-  folder_id?: string;
-} 
+  description?: string | null;
+  type: "link" | "file" | "document";
+  url?: string | null;
+  file_path?: string | null;
+  folder_id?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}

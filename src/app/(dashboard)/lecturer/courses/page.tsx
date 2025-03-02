@@ -1,3 +1,4 @@
+
 import { CourseList } from "@/components/dashboard/course/CourseList";
 import { CreateCourseButton } from "@/components/dashboard/course/CreateCourseButton";
 
@@ -11,4 +12,4 @@ export default function CoursesPage() {
       <CourseList />
     </div>
   );
-} 
+}

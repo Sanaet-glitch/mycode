@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import type { 
   CourseArchive, 
@@ -51,10 +52,18 @@ export const courseArchiveApi = {
 
 // Category Management
 export const courseCategoryApi = {
-  createCategory: async (category: Partial<CourseCategory>) => {
+  createCategory: async (category: CourseCategory) => {
+    // Ensure name is provided
+    if (!category.name) {
+      throw new Error("Category name is required");
+    }
+    
     const { data, error } = await supabase
       .from('course_categories')
-      .insert(category)
+      .insert({
+        name: category.name,
+        description: category.description || null,
+      })
       .select()
       .single();
 
@@ -87,10 +96,17 @@ export const courseCategoryApi = {
 
 // Tag Management
 export const courseTagApi = {
-  createTag: async (tag: Partial<CourseTag>) => {
+  createTag: async (tag: CourseTag) => {
+    // Ensure name is provided
+    if (!tag.name) {
+      throw new Error("Tag name is required");
+    }
+    
     const { data, error } = await supabase
       .from('course_tags')
-      .insert(tag)
+      .insert({
+        name: tag.name,
+      })
       .select()
       .single();
 
@@ -146,10 +162,27 @@ export const courseTagApi = {
 
 // Course Materials Management
 export const courseMaterialApi = {
-  addMaterial: async (material: Partial<CourseMaterial>) => {
+  addMaterial: async (material: Omit<CourseMaterial, 'id'>) => {
+    // Ensure required fields are provided
+    if (!material.title) {
+      throw new Error("Material title is required");
+    }
+    
+    if (!material.type) {
+      throw new Error("Material type is required");
+    }
+    
     const { data, error } = await supabase
       .from('course_materials')
-      .insert(material)
+      .insert({
+        title: material.title,
+        description: material.description || null,
+        type: material.type,
+        url: material.url || null,
+        file_path: material.file_path || null,
+        course_id: material.course_id,
+        folder_id: material.folder_id || null,
+      })
       .select()
       .single();
 
@@ -165,7 +198,7 @@ export const courseMaterialApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as unknown as CourseMaterial[];
   },
 
   updateMaterial: async (id: string, updates: Partial<CourseMaterial>) => {
@@ -206,4 +239,4 @@ export const courseMaterialApi = {
 
     return { filePath, publicUrl };
   },
-}; 
+};

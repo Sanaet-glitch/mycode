@@ -1,26 +1,41 @@
-import { useState, useCallback } from "react";
+
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useCourseManagement } from "@/hooks/use-course-management";
 import { Upload, Loader2 } from "lucide-react";
-import { useDropzone } from "react-dropzone";
-import { LoadingState } from "@/components/ui/loading-state";
 
 interface FileUploaderProps {
   courseId: string;
+  currentFolder?: string | null;
 }
 
-export const FileUploader = ({ courseId }: FileUploaderProps) => {
+export const FileUploader = ({ courseId, currentFolder }: FileUploaderProps) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
   const { courseMaterialApi } = useCourseManagement();
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      toast({
+        variant: "destructive",
+        title: "File Required",
+        description: "Please select a file to upload.",
+      });
+      return;
+    }
+
     if (!title.trim()) {
       toast({
         variant: "destructive",
@@ -32,8 +47,7 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
 
     setIsUploading(true);
     try {
-      const file = acceptedFiles[0];
-      const { filePath, publicUrl } = await courseMaterialApi.uploadFile(courseId, file);
+      const { filePath, publicUrl } = await courseMaterialApi.uploadFile(courseId, selectedFile);
       
       await courseMaterialApi.addMaterial({
         course_id: courseId,
@@ -42,10 +56,12 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
         type: "file",
         file_path: filePath,
         url: publicUrl,
+        folder_id: currentFolder,
       });
 
       setTitle("");
       setDescription("");
+      setSelectedFile(null);
       toast({
         title: "File Uploaded",
         description: "The file has been successfully uploaded.",
@@ -59,19 +75,7 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
     } finally {
       setIsUploading(false);
     }
-  }, [courseId, title, description]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
-      'image/*': ['.png', '.jpg', '.jpeg'],
-    },
-    maxSize: 10485760, // 10MB
-  });
+  };
 
   return (
     <div className="space-y-4">
@@ -85,25 +89,35 @@ export const FileUploader = ({ courseId }: FileUploaderProps) => {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
-      <div
-        {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-          ${isDragActive ? "border-primary bg-primary/10" : "border-muted"}
-          ${isUploading ? "pointer-events-none opacity-50" : ""}`}
-      >
-        <input {...getInputProps()} disabled={isUploading} />
-        {isUploading ? (
-          <LoadingState message="Uploading file..." />
-        ) : (
-          <div>
-            <Upload className="h-6 w-6 mx-auto mb-2" />
-            <p>Drag & drop a file here, or click to select</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Supported files: PDF, DOC, DOCX, PNG, JPG (max 10MB)
-            </p>
-          </div>
-        )}
+      <div className="border-2 border-dashed rounded-lg p-8 text-center">
+        <Input
+          type="file"
+          onChange={handleFileChange}
+          disabled={isUploading}
+          className="mb-4"
+          accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+        />
+        <p className="text-sm text-muted-foreground mt-2">
+          Supported files: PDF, DOC, DOCX, PNG, JPG (max 10MB)
+        </p>
       </div>
+      <Button 
+        onClick={handleUpload} 
+        disabled={isUploading || !selectedFile}
+        className="w-full"
+      >
+        {isUploading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Uploading...
+          </>
+        ) : (
+          <>
+            <Upload className="mr-2 h-4 w-4" />
+            Upload File
+          </>
+        )}
+      </Button>
     </div>
   );
-}; 
+};

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileUploader } from "./FileUploader";
@@ -25,7 +26,7 @@ export const MaterialsManager = ({ courseId }: MaterialsManagerProps) => {
 
   const filteredMaterials = materials?.filter(material => {
     const matchesSearch = material.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      material.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      (material.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
     const matchesType = typeFilter === "all" || material.type === typeFilter;
     const matchesFolder = material.folder_id === currentFolder;
     
@@ -79,4 +80,4 @@ export const MaterialsManager = ({ courseId }: MaterialsManagerProps) => {
       </div>
     </ErrorBoundary>
   );
-}; 
+};

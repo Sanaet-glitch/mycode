@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { 
   courseArchiveApi, 
@@ -7,10 +8,26 @@ import {
 } from "@/lib/api/course-management";
 import { useToast } from "@/hooks/use-toast";
 import { CourseManagementError } from "@/lib/api/errors";
+import { supabase } from "@/integrations/supabase/client";
+import { CourseMaterial } from "@/types/database";
 
 export const useCourseManagement = (courseId?: string) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Courses
+  const useCourses = () => useQuery({
+    queryKey: ['courses'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Archives
   const useArchives = () => useQuery({
@@ -66,12 +83,13 @@ export const useCourseManagement = (courseId?: string) => {
   });
 
   return {
+    useCourses,
     useArchives,
     useArchiveCourse,
     useCategories,
     useTags,
     useCourseTags,
     useMaterials,
-    // ... add more hooks as needed
+    courseMaterialApi
   };
-}; 
+};
