@@ -1,0 +1,28 @@
+// This file will be a placeholder. In the real application, 
+// you would need to manually create a template Excel file.
+// For now, you can create it using a script like:
+/*
+const XLSX = require('xlsx');
+
+// Create a new workbook
+const wb = XLSX.utils.book_new();
+
+// Create sample data
+const data = [
+  { email: "student@institution.edu", fullName: "Student Name", role: "student" },
+  { email: "lecturer@institution.edu", fullName: "Lecturer Name", role: "lecturer" },
+  { email: "admin@institution.edu", fullName: "Admin Name", role: "admin" }
+];
+
+// Convert to worksheet
+const ws = XLSX.utils.json_to_sheet(data);
+
+// Add the worksheet to the workbook
+XLSX.utils.book_append_sheet(wb, ws, "Users");
+
+// Write to file
+XLSX.writeFile(wb, "user_import_template.xlsx");
+*/
+
+// In the meantime, users can create their own spreadsheet with the 
+// columns: email, fullName, and role. 

@@ -1,0 +1,12 @@
+import React from 'react';
+
+const CourseManagementPage: React.FC = () => {
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-4">Course Management</h1>
+      <p className="text-muted-foreground">This page is currently under development.</p>
+    </div>
+  );
+};
+
+export default CourseManagementPage; 

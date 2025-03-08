@@ -21,6 +21,7 @@ export type Database = {
           status: string | null
           student_id: string
           verification_attempts: number | null
+          verification_method: string | null
         }
         Insert: {
           class_session_id: string
@@ -33,6 +34,7 @@ export type Database = {
           status?: string | null
           student_id: string
           verification_attempts?: number | null
+          verification_method?: string | null
         }
         Update: {
           class_session_id?: string
@@ -45,6 +47,7 @@ export type Database = {
           status?: string | null
           student_id?: string
           verification_attempts?: number | null
+          verification_method?: string | null
         }
         Relationships: [
           {
@@ -397,18 +400,132 @@ export type Database = {
           full_name: string
           id: string
           role: string
+          avatar_url: string | null
         }
         Insert: {
           created_at?: string
           full_name: string
           id: string
           role: string
+          avatar_url?: string | null
         }
         Update: {
           created_at?: string
           full_name?: string
           id?: string
           role?: string
+          avatar_url?: string | null
+        }
+        Relationships: []
+      }
+      server_status: {
+        Row: {
+          id: string
+          cpu_usage: number
+          memory_usage: number
+          disk_usage: number
+          uptime_seconds: number
+          is_database_connected: boolean
+          environment: string
+          version: string
+          node_version: string
+          last_backup_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          cpu_usage: number
+          memory_usage: number
+          disk_usage: number
+          uptime_seconds: number
+          is_database_connected: boolean
+          environment: string
+          version: string
+          node_version: string
+          last_backup_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          cpu_usage?: number
+          memory_usage?: number
+          disk_usage?: number
+          uptime_seconds?: number
+          is_database_connected?: boolean
+          environment?: string
+          version?: string
+          node_version?: string
+          last_backup_at?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      app_settings: {
+        Row: {
+          id: string
+          site_name: string
+          site_description: string | null
+          contact_email: string | null
+          support_email: string | null
+          logo_url: string | null
+          favicon_url: string | null
+          primary_color: string | null
+          allow_registration: boolean
+          require_email_verification: boolean
+          max_login_attempts: number | null
+          default_user_role: string | null
+          allowed_file_types: string | null
+          max_file_size: number | null
+          maintenance_mode: boolean
+          time_zone: string | null
+          date_format: string | null
+          time_format: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          site_name?: string
+          site_description?: string | null
+          contact_email?: string | null
+          support_email?: string | null
+          logo_url?: string | null
+          favicon_url?: string | null
+          primary_color?: string | null
+          allow_registration?: boolean
+          require_email_verification?: boolean
+          max_login_attempts?: number | null
+          default_user_role?: string | null
+          allowed_file_types?: string | null
+          max_file_size?: number | null
+          maintenance_mode?: boolean
+          time_zone?: string | null
+          date_format?: string | null
+          time_format?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          site_name?: string
+          site_description?: string | null
+          contact_email?: string | null
+          support_email?: string | null
+          logo_url?: string | null
+          favicon_url?: string | null
+          primary_color?: string | null
+          allow_registration?: boolean
+          require_email_verification?: boolean
+          max_login_attempts?: number | null
+          default_user_role?: string | null
+          allowed_file_types?: string | null
+          max_file_size?: number | null
+          maintenance_mode?: boolean
+          time_zone?: string | null
+          date_format?: string | null
+          time_format?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -420,6 +537,16 @@ export type Database = {
       activate_scheduled_classes: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_server_status: {
+        Args: Record<string, never>
+        Returns: Database['public']['Tables']['server_status']['Row'][]
+      }
+      get_server_status_history: {
+        Args: {
+          days_back: number
+        }
+        Returns: Database['public']['Tables']['server_status']['Row'][]
       }
     }
     Enums: {

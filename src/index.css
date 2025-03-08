@@ -4,98 +4,637 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
+    /* Light theme - AttendBeacon Palette */
+    --background: 210 40% 98%;
+    --foreground: 224 71.4% 4.1%;
+    
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
+    --card-foreground: 224 71.4% 4.1%;
+    
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
+    --popover-foreground: 224 71.4% 4.1%;
+    
+    --primary: 214 100% 48%;
     --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 210 40% 90%;
+    --accent-foreground: 222 47% 11%;
+    
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --success: 142 76% 45%;
+    --success-foreground: 210 40% 98%;
 
-    --radius: 0.5rem;
+    --warning: 38 92% 50%;
+    --warning-foreground: 210 40% 98%;
 
-    --sidebar-background: 0 0% 98%;
+    --info: 200 98% 40%;
+    --info-foreground: 210 40% 98%;
+    
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 214 100% 48%;
+    
+    --radius: 0.6rem;
+    
+    /* Sidebar specific colors */
+    --sidebar-background: 214 100% 48%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 210 40% 96%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 210 40% 90%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 215 20.2% 65.1%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Enhanced Glassmorphism Variables */
+    --glass-opacity: 0.15;
+    --glass-opacity-dark: 0.18;
+    --glass-border-opacity: 0.2;
+    --glass-border-opacity-dark: 0.1;
+    --glass-blur: 12px;
+    --glass-saturation: 180%;
+    --glass-backdrop-intensity: 5px;
+    --glass-glow-intensity: 0.1;
+    --glass-shadow-opacity: 0.08;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Dark theme - AttendBeacon Dark Palette */
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
+    
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
+    
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
+    
+    --primary: 214 85% 52%;
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
+    
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    
+    --accent: 217 33% 20%;
     --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
+    
+    --destructive: 0 62% 35%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --success: 142 76% 40%;
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 92% 45%;
+    --warning-foreground: 210 40% 98%;
+
+    --info: 200 98% 36%;
+    --info-foreground: 210 40% 98%;
+    
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 214 85% 52%;
+    
+    /* Dark theme sidebar */
+    --sidebar-background: 222 47% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 214 85% 52%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 213 90% 45%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 214 85% 52%;
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-[hsl(var(--border))];
+  }
+  
+  body {
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))];
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Smooth scrolling and transitions */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-[hsl(var(--secondary))]/50;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[hsl(var(--primary))]/50 rounded-full transition-colors hover:bg-[hsl(var(--primary))]/70;
+  }
+  
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .slide-in {
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Card hover effects */
+  .hover-card {
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
+  }
+  
+  /* Button animations */
+  .btn-hover {
+    @apply transition-all duration-300 hover:scale-[1.05] active:scale-[0.98];
+  }
+}
+
+/* AttendBeacon specific styles */
+@layer components {
+  /* Glassmorphism utilities */
+  .bg-glass {
+    @apply bg-white/[var(--glass-opacity)] backdrop-blur-[var(--glass-blur)] backdrop-saturate-[var(--glass-saturation)] border border-white/[var(--glass-border-opacity)] shadow-[0_4px_30px_rgba(0,0,0,var(--glass-shadow-opacity))];
+  }
+  
+  .bg-glass-dark {
+    @apply bg-[#111928]/[var(--glass-opacity-dark)] backdrop-blur-[var(--glass-blur)] backdrop-saturate-[var(--glass-saturation)] border border-white/[var(--glass-border-opacity-dark)] shadow-[0_4px_30px_rgba(0,0,0,var(--glass-shadow-opacity))];
+  }
+  
+  .bg-background {
+    @apply bg-[hsl(var(--background))];
+  }
+  
+  .text-foreground {
+    @apply text-[hsl(var(--foreground))];
+  }
+  
+  .bg-primary {
+    @apply bg-[hsl(var(--primary))];
+  }
+  
+  .bg-secondary {
+    @apply bg-[hsl(var(--secondary))];
+  }
+  
+  .bg-card {
+    @apply bg-[hsl(var(--card))];
+  }
+  
+  .bg-muted {
+    @apply bg-[hsl(var(--muted))];
   }
 
-  body {
-    @apply bg-background text-foreground;
+  /* Existing components */
+  .beacon-circle-container {
+    @apply relative flex items-center justify-center;
   }
+  
+  .beacon-circle {
+    @apply absolute border-dashed rounded-full flex items-center justify-center;
+  }
+  
+  .status-badge-success {
+    @apply bg-[hsl(var(--success))] text-[hsl(var(--success-foreground))] text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  
+  .status-badge-warning {
+    @apply bg-[hsl(var(--warning))] text-[hsl(var(--warning-foreground))] text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  
+  .status-badge-error {
+    @apply bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))] text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  
+  .status-badge-info {
+    @apply bg-[hsl(var(--info))] text-[hsl(var(--info-foreground))] text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+  
+  .status-dot {
+    @apply w-2 h-2 rounded-full mr-2;
+  }
+  
+  .attend-beacon-header {
+    @apply flex flex-col md:flex-row justify-between items-start md:items-center mb-6;
+  }
+  
+  .section-title {
+    @apply text-lg font-semibold flex items-center gap-2;
+  }
+  
+  .stats-value {
+    @apply text-2xl font-bold;
+  }
+  
+  .stats-label {
+    @apply text-sm text-[hsl(var(--muted-foreground))];
+  }
+  
+  .progress-bar {
+    @apply w-full bg-[hsl(var(--secondary))] rounded-full h-2.5 mt-2;
+  }
+  
+  .student-card {
+    @apply p-4 border rounded-lg flex items-center gap-4 bg-[hsl(var(--card))] hover:shadow-md transition-shadow;
+  }
+  
+  /* Glass UI styles */
+  .glass-card {
+    @apply bg-white/[var(--glass-opacity)] backdrop-blur-[var(--glass-blur)] backdrop-saturate-[var(--glass-saturation)] border border-white/[var(--glass-border-opacity)] rounded-lg shadow-[0_8px_32px_rgba(31,38,135,0.15)];
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  }
+  
+  .glass-card-dark {
+    @apply bg-[#111928]/[var(--glass-opacity-dark)] backdrop-blur-[var(--glass-blur)] backdrop-saturate-[var(--glass-saturation)] border border-white/[var(--glass-border-opacity-dark)] rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.2)];
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  }
+  
+  .glass-input {
+    @apply bg-white/[var(--glass-opacity)] backdrop-blur-sm backdrop-saturate-[var(--glass-saturation)] border border-white/[var(--glass-border-opacity)] rounded-md focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all duration-300;
+    -webkit-backdrop-filter: blur(5px) saturate(var(--glass-saturation));
+    backdrop-filter: blur(5px) saturate(var(--glass-saturation));
+  }
+  
+  .glass-button {
+    @apply bg-white/[var(--glass-opacity)] backdrop-blur-sm hover:bg-white/20 transition-all duration-300 border border-white/[var(--glass-border-opacity)] rounded-md shadow-sm hover:shadow-md;
+    -webkit-backdrop-filter: blur(5px) saturate(var(--glass-saturation));
+    backdrop-filter: blur(5px) saturate(var(--glass-saturation));
+  }
+  
+  .neon-border {
+    @apply border border-primary/50;
+    box-shadow: 0 0 10px theme('colors.primary.DEFAULT'), 0 0 5px theme('colors.primary.DEFAULT');
+  }
+
+  /* Premium Glass Effects */
+  .glass-premium {
+    @apply bg-white/[var(--glass-opacity)] rounded-xl;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity));
+  }
+
+  .glass-premium-dark {
+    @apply bg-[#111928]/[var(--glass-opacity-dark)] rounded-xl;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    border: 1px solid rgba(255, 255, 255, var(--glass-border-opacity-dark));
+  }
+
+  .glass-morphism-container {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    @apply rounded-xl;
+  }
+
+  .glass-morphism-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    z-index: 2;
+    @apply rounded-xl;
+    pointer-events: none;
+  }
+
+  .glass-glow {
+    position: relative;
+  }
+
+  .glass-glow::after {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    right: -15px;
+    bottom: -15px;
+    z-index: -1;
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    pointer-events: none;
+  }
+
+  .glass-highlight {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-highlight::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    animation: glass-shine 5s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes glass-shine {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(30deg);
+    }
+    100% {
+      transform: translateX(100%) translateY(100%) rotate(30deg);
+    }
+  }
+}
+
+/* Fix for the tabs in the admin layouts */
+.custom-tabs .ant-tabs-nav {
+  margin-bottom: 0 !important;
+  padding: 0.75rem 1rem 0;
+}
+
+.custom-tabs .ant-tabs-tab {
+  background: rgba(17, 25, 40, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.3s ease;
+}
+
+.custom-tabs .ant-tabs-tab:hover {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-tabs .ant-tabs-tab-active {
+  background: rgba(66, 153, 225, 0.15) !important;
+  border-bottom-color: transparent !important;
+  border-top: 2px solid #4299e1 !important;
+}
+
+.custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: white !important;
+  text-shadow: 0 0 10px rgba(66, 153, 225, 0.5);
+}
+
+.custom-tabs .ant-tabs-content-holder {
+  background: rgba(17, 25, 40, 0.4);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.custom-tabs .ant-tabs-content {
+  min-height: 300px;
+}
+
+/* Fix for cards with box shadow issues */
+.card-overlap-fix {
+  position: relative;
+  z-index: 1;
+}
+
+/* Improved scrollbar for the glassmorphism theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Neon border effect for focused elements */
+.neon-border {
+  border: 1px solid rgba(66, 153, 225, 0.5);
+  box-shadow: 0 0 5px rgba(66, 153, 225, 0.5), 0 0 10px rgba(66, 153, 225, 0.3);
+}
+
+/* Fix for iframe containment */
+.iframe-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.iframe-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Fix for overlapping dropdown menus */
+.ant-dropdown {
+  z-index: 1050;
+}
+
+/* Animations for smoother transitions */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fix for overlapping elements in the admin dashboard */
+.grid-fix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* For equal height cards */
+.card-equal-height {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-equal-height .card-body {
+  flex: 1;
+}
+
+/* Prevent text overflow for long content */
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Fix for form elements in the glassmorphism theme */
+.glass-input-fix input,
+.glass-input-fix textarea,
+.glass-input-fix select {
+  background: rgba(17, 25, 40, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.125) !important;
+  color: white !important;
+}
+
+.glass-input-fix input:focus,
+.glass-input-fix textarea:focus,
+.glass-input-fix select:focus {
+  border-color: rgba(66, 153, 225, 0.8) !important;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.25) !important;
+}
+
+/* Ensure proper z-index layering */
+.z-layer-1 { z-index: 10; }
+.z-layer-2 { z-index: 20; }
+.z-layer-3 { z-index: 30; }
+.z-layer-4 { z-index: 40; }
+.z-layer-5 { z-index: 50; }
+
+/* Prevent modal overflow */
+.ant-modal-content {
+  background: rgba(17, 25, 40, 0.85) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.125) !important;
+}
+
+.ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.125) !important;
+}
+
+.ant-modal-title {
+  color: white !important;
+}
+
+.ant-modal-close {
+  color: white !important;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.125) !important;
+}
+
+/* Fix for tabs component */
+.ant-tabs-ink-bar {
+  background-color: #4299e1 !important;
+  height: 3px !important;
+}
+
+/* Enhance readability of text */
+.text-enhanced {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Admin tabs styling */
+.admin-tabs .ant-tabs-nav {
+  margin-bottom: 0 !important;
+  padding: 0.75rem 1rem 0;
+}
+
+.admin-tabs .ant-tabs-tab {
+  background: rgba(17, 25, 40, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.3s ease;
+}
+
+.admin-tabs .ant-tabs-tab:hover {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.admin-tabs .ant-tabs-tab-active {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-bottom-color: transparent !important;
+  border-top: 2px solid #3b82f6 !important;
+}
+
+.admin-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: white !important;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.admin-tabs .ant-tabs-content-holder {
+  background: rgba(17, 25, 40, 0.4);
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.admin-tabs .ant-tabs-content {
+  min-height: 300px;
+}
+
+/* Fix for the deprecated custom-tabs class that was previously defined */
+.custom-tabs .ant-tabs-nav,
+.custom-tabs .ant-tabs-tab,
+.custom-tabs .ant-tabs-tab:hover,
+.custom-tabs .ant-tabs-tab-active,
+.custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn,
+.custom-tabs .ant-tabs-content-holder,
+.custom-tabs .ant-tabs-content {
+  /* Maintain backward compatibility */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
 }

@@ -1,0 +1,68 @@
+/* Arwes Theme CSS */
+
+:root {
+  --arwes-primary: #0ff;
+  --arwes-secondary: #ff0;
+  --arwes-success: #0f0;
+  --arwes-error: #f00;
+  --arwes-info: #0cf;
+  --arwes-text: #fff;
+  --arwes-background: #001;
+}
+
+.arwes-theme {
+  background-color: var(--arwes-background);
+  color: var(--arwes-text);
+  font-family: 'Titillium Web', sans-serif;
+}
+
+/* Animations */
+@keyframes arwes-glow {
+  0% {
+    box-shadow: 0 0 5px var(--arwes-primary);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--arwes-primary);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--arwes-primary);
+  }
+}
+
+@keyframes arwes-text-glow {
+  0% {
+    text-shadow: 0 0 5px var(--arwes-primary);
+  }
+  50% {
+    text-shadow: 0 0 10px var(--arwes-primary);
+  }
+  100% {
+    text-shadow: 0 0 5px var(--arwes-primary);
+  }
+}
+
+/* Apply animations to elements */
+.arwes-theme h1, 
+.arwes-theme h2, 
+.arwes-theme h3 {
+  animation: arwes-text-glow 4s infinite;
+}
+
+.arwes-theme button:hover,
+.arwes-theme a:hover {
+  animation: arwes-glow 2s infinite;
+}
+
+/* Grid layout */
+.arwes-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .arwes-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+} 
